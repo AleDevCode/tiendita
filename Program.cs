@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Tiendita.Models;
 
@@ -25,7 +26,7 @@ namespace Tiendita
                     MenuProductos();
                     break;
                 case "2":
-                
+                    MenuVentas();
                     break;
                 case "0": return;
             }
@@ -78,13 +79,13 @@ namespace Tiendita
 
         public static void BuscarProductos()
         {
-            Console.WriteLine("Buscar prodcutos");
+            Console.WriteLine("Buscar productos");
             Console.Write("Buscar: ");
             string buscar = Console.ReadLine();
 
             using (TienditaContext context = new TienditaContext())
             {
-                IQueryable<Producto> productos = context.Productos.Where(p => p.Nombre.Contains(buscar));
+                IQueryable<Producto> productos = context.Productos.Where(p => p.Nombre.IndexOf(buscar, StringComparison.OrdinalIgnoreCase) >= 0);
                 foreach (Producto producto in productos)
                 {
                     Console.WriteLine(producto);
@@ -134,7 +135,7 @@ namespace Tiendita
                 Producto producto = context.Productos.Find(id);
                 if (producto == null)
                 {
-                    SelecionarProducto();
+                    SelecionarProducto();   
                 }
                 return producto;
             }
@@ -168,14 +169,90 @@ namespace Tiendita
 
         // Ventas 
 
+        public static void MenuVentas()
+        {
+            OpcionesMenu("venta");
+            string opcion = Console.ReadLine();
+            switch (opcion)
+            {
+                case "1":
+                    
+                    break;
+                case "2":
+                    CrearVenta();
+                    break;
+                case "3":
+                    
+                    break;
+                case "4":
+                    
+                    break;
+                case "0":
+                    MenuPrincipal();
+                    break;
+
+                default:
+                    MenuPrincipal();
+                    break;
+            }
+            MenuVentas();
+        }
+
         public static void CrearVenta()
         {
             Console.WriteLine("Crear Venta");
+            Venta venta = new Venta();
+            venta.Fecha = new DateTime();
+            venta.Total = 0;
+            Console.WriteLine("Nombre de Cliente");
+            venta.Cliente = Console.ReadLine();
+
+            using (TienditaContext context = new TienditaContext())
+            {
+                context.Add(venta);
+                context.SaveChanges();
+                Console.WriteLine("Venta creada");
+            }
+
+
+            uint Id = venta.Id; 
+            List<Producto> productos = new List<Producto>();
+            Console.WriteLine( "Agregar productos a la venta");
+            Producto producto = new Producto();
+            producto = SelecionarProducto();
+
+            productos.Add(producto);
            
+
+            foreach (Producto p in productos)
+            {
+                var detalle = new Detalle();
+                detalle.ProductoId = producto.Id;
+                detalle.Producto = producto;
+                detalle.Subtotal = detalle.Subtotal + producto.Precio;
+                detalle.Venta = venta;
+                detalle.VentaId = Id;
+               // detalle.Id = 3;
+                CrearDetalles(detalle);
+
+            }
+
+          
         }
 
 
-       
+        public static void CrearDetalles(Detalle detalle)
+        {
+            using (TienditaContext context = new TienditaContext())
+            {
+                
+                context.Detalles.Add(detalle);
+                context.SaveChanges();
+                Console.WriteLine("Detalles creada");
+            }
+        }
+
+
 
     }
 }
