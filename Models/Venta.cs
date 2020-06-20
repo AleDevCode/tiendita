@@ -11,5 +11,14 @@ namespace Tiendita.Models
         public DateTime Fecha { get; set; }
         public string Cliente { get; set; }
         public virtual ICollection<Detalle> Detalles { get; set; }
+
+
+        public override string ToString()
+        {
+            return $"ID: {Id} - {Cliente} Total: {Total}MXN";
+        }
     }
+
+
+    
 }
