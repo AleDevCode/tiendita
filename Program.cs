@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tiendita.Models;
@@ -203,54 +204,46 @@ namespace Tiendita
             Console.WriteLine("Crear Venta");
             Venta venta = new Venta();
             venta.Fecha = new DateTime();
-            venta.Total = 0;
             Console.WriteLine("Nombre de Cliente");
             venta.Cliente = Console.ReadLine();
 
+            List<Producto> productos = new List<Producto>();
+            Console.WriteLine("Agregar productos a la venta");
+            Producto producto = new Producto();
+            producto = SelecionarProducto();
+
+            productos.Add(producto);
+
+            Console.WriteLine("Agregar productos a la venta");
+            Producto producto2 = new Producto();
+            producto2 = SelecionarProducto();
+            productos.Add(producto2);
+            List<Detalle> detalles = new List<Detalle>();
+           
+ 
+            foreach (Producto p in productos)
+            {
+                var detalle = new Detalle();
+                detalle.ProductoId = p.Id;
+                detalle.Producto = p;
+                detalle.Subtotal = detalle.Subtotal + p.Precio;
+                detalles.Add(detalle);
+
+            }
+
+            venta.Detalles = detalles;
+            venta.Total = detalles.Sum(x => x.Subtotal);
+
             using (TienditaContext context = new TienditaContext())
             {
+            
                 context.Add(venta);
                 context.SaveChanges();
                 Console.WriteLine("Venta creada");
             }
 
-
-            uint Id = venta.Id; 
-            List<Producto> productos = new List<Producto>();
-            Console.WriteLine( "Agregar productos a la venta");
-            Producto producto = new Producto();
-            producto = SelecionarProducto();
-
-            productos.Add(producto);
-           
-
-            foreach (Producto p in productos)
-            {
-                var detalle = new Detalle();
-                detalle.ProductoId = producto.Id;
-                detalle.Producto = producto;
-                detalle.Subtotal = detalle.Subtotal + producto.Precio;
-                detalle.Venta = venta;
-                detalle.VentaId = Id;
-               // detalle.Id = 3;
-                CrearDetalles(detalle);
-
-            }
-
-          
         }
 
-
-        public static void CrearDetalles(Detalle detalle)
-        {
-            using (TienditaContext context = new TienditaContext())
-            {
-                
-                context.Detalles.Add(detalle);
-                context.SaveChanges();
-                Console.WriteLine("Detalles creada");
-            }
-        }
 
 
 
