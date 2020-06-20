@@ -233,13 +233,13 @@ namespace Tiendita
         public static void EliminarVenta()
         {
 
-            Console.WriteLine("Eliminar producto");
+            Console.WriteLine("Eliminar venta");
             Venta venta= SelecionarVenta();
             using (TienditaContext context = new TienditaContext())
             {
                 context.Remove(venta);
                 context.SaveChanges();
-                Console.WriteLine("Producto eliminado");
+                Console.WriteLine("Venta eliminada");
             }
 
             
@@ -249,7 +249,7 @@ namespace Tiendita
         public static Venta SelecionarVenta()
         {
             BuscarVentas();
-            Console.Write("Seleciona el código de producto: ");
+            Console.Write("Seleciona el código de la venta: ");
             uint id = uint.Parse(Console.ReadLine());
             using (TienditaContext context = new TienditaContext())
             {
@@ -265,8 +265,8 @@ namespace Tiendita
 
         public static void BuscarVentas()
         {
-            Console.WriteLine("Buscar productos");
-            Console.Write("Buscar: ");
+            Console.WriteLine("Buscar ventas");
+            Console.Write("Ingresa nombre del cliente: ");
             string buscar = Console.ReadLine();
 
             using (TienditaContext context = new TienditaContext())
