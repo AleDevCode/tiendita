@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tiendita.Models;
+using Tiendita.Utils;
 
 namespace Tiendita
 {
@@ -18,6 +19,8 @@ namespace Tiendita
             Console.WriteLine("Menu Principal");
             Console.WriteLine("1) Menú de Productos");
             Console.WriteLine("2) Menú de Ventas");
+            Console.WriteLine("3) Iniciar sesión");
+            Console.WriteLine("4) Registrar usuario");
             Console.WriteLine("0) Salir");
 
             string opcion = Console.ReadLine();
@@ -28,6 +31,12 @@ namespace Tiendita
                     break;
                 case "2":
                     MenuVentas();
+                    break;
+                case "3":
+                    IniciarSesion();
+                    break;
+                case "4":
+                    RegistrarUsuario();
                     break;
                 case "0": return;
             }
@@ -285,8 +294,98 @@ namespace Tiendita
         }
 
 
+        // Control de usuarios
+        public static void RegistrarUsuario()
+        {
+            Console.WriteLine("Para registrarse ingrese un usuario y una contraseña.");
+            Usuario usuario = new Usuario();
+            string passFromConsole;
+            // Lectura y validación del nombre de usuario
+            do
+            {
+                // Leemos el usuario
+                Console.WriteLine("Usuario: ");
+                usuario.NombreUsuario = Console.ReadLine();
+                if (string.IsNullOrEmpty(usuario.NombreUsuario))
+                {
+                    Console.WriteLine("No se permiten entradas en blanco.");
+                }
+            } while (string.IsNullOrEmpty(usuario.NombreUsuario));
+            // Leemos la contraseña
 
+            do
+            {
+                Console.WriteLine("Contraseña: ");
+                passFromConsole = Console.ReadLine();
+                if (string.IsNullOrEmpty(passFromConsole))
+                {
+                    Console.WriteLine("No se permiten entradas en blanco.");
+                }
+                else
+                {
+                    Console.WriteLine("estoy en el else " + passFromConsole + Encrypt.GetSHA256(passFromConsole));
+                    usuario.Password = Encrypt.GetSHA256(passFromConsole);
+                }
+            } while (string.IsNullOrEmpty(passFromConsole));
 
+            using (TienditaContext context = new TienditaContext())
+            {
+                context.Add(usuario);
+                context.SaveChanges();
+                Console.WriteLine($"Usuario {usuario.NombreUsuario} creado");
+            }
+        }
+
+        public static void IniciarSesion()
+        {
+            Console.WriteLine("Para iniciar sesion ingrese su usuario y contraseña.");
+            Usuario usuario = new Usuario();
+            string passFromConsole;
+            // Lectura y validación del nombre de usuario
+            do
+            {
+                Console.WriteLine("Usuario: ");
+                usuario.NombreUsuario = Console.ReadLine();
+                if (string.IsNullOrEmpty(usuario.NombreUsuario))
+                {
+                    Console.WriteLine("No se permiten entradas en blanco.");
+                }
+            } while (string.IsNullOrEmpty(usuario.NombreUsuario));
+
+            // Lectura y validación de la contraseña
+            do
+            {
+                Console.WriteLine("Contraseña: ");
+                passFromConsole = Console.ReadLine();
+                if (string.IsNullOrEmpty(passFromConsole))
+                {
+                    Console.WriteLine("No se permiten entradas en blanco.");
+                }
+                else if(!string.IsNullOrEmpty(passFromConsole))
+                {
+                    Console.WriteLine("estoy en el else if " + passFromConsole + Encrypt.GetSHA256(passFromConsole));
+                    usuario.Password = Encrypt.GetSHA256(passFromConsole);
+                }
+            } while (string.IsNullOrEmpty(passFromConsole));
+
+            using (TienditaContext context = new TienditaContext())
+            {
+
+                var usuarioDb = context.Usuario.Where(
+                    u => u.NombreUsuario == usuario.NombreUsuario &&
+                    u.Password == usuario.Password).FirstOrDefault();
+
+                if (usuarioDb != null)
+                {
+                    Console.WriteLine("¡Inicio de sesión exitoso!");
+                    Console.WriteLine($"Bienvenido {usuarioDb.NombreUsuario}");
+                }
+                else
+                {
+                    Console.WriteLine("Usuario o contraseña incorrectos");
+                }
+            }
+        }
 
     }
 }
