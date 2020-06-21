@@ -13,5 +13,11 @@ namespace Tiendita.Models
         public uint VentaId { get; set; }
         public Venta Venta { get; set; }
         public decimal Subtotal { get; set; }
+
+
+        public override string ToString()
+        {
+            return $"ID: {Id} - ProductoId: {ProductoId} Subtotal: {Subtotal.ToString("N4")}MXN   ";
+        }
     }
 }

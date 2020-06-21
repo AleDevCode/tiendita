@@ -16,7 +16,7 @@ namespace Tiendita.Models
 
         public override string ToString()
         {
-            return $"ID: {Id} - {Nombre} Precio: {Precio}MXN";
+            return $"ID: {Id} - {Nombre} Precio: {Precio.ToString("N4")}MXN";
         }
     }
 }

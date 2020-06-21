@@ -87,10 +87,12 @@ namespace Tiendita
             using (TienditaContext context = new TienditaContext())
             {
                 IQueryable<Producto> productos = context.Productos.Where(p => p.Nombre.IndexOf(buscar, StringComparison.OrdinalIgnoreCase) >= 0);
-                foreach (Producto producto in productos)
-                {
-                    Console.WriteLine(producto);
-                }
+             
+                    foreach (Producto producto in productos)
+                    {
+                        Console.WriteLine(producto);
+                    }
+                
             }
         }
 
@@ -130,17 +132,28 @@ namespace Tiendita
         {
             BuscarProductos();
             Console.Write("Seleciona el código de producto: ");
-            uint id = uint.Parse(Console.ReadLine());
+            uint id = 0;
+            try
+            {
+                id = uint.Parse(Console.ReadLine());
+                
+            }
+            catch
+            {
+                Console.WriteLine("Valor inválido");
+            }
             using (TienditaContext context = new TienditaContext())
             {
                 Producto producto = context.Productos.Find(id);
                 if (producto == null)
                 {
-                    SelecionarProducto();   
+                    SelecionarProducto();
                 }
                 return producto;
             }
         }
+
+           
 
         public static void ActualizarProducto()
         {
@@ -177,7 +190,7 @@ namespace Tiendita
             switch (opcion)
             {
                 case "1":
-                    
+                    BuscarVentas();
                     break;
                 case "2":
                     CrearVenta();
@@ -193,9 +206,10 @@ namespace Tiendita
                     break;
 
                 default:
-                    MenuPrincipal();
+                    MenuVentas();
                     break;
             }
+
             MenuVentas();
         }
 
@@ -206,19 +220,59 @@ namespace Tiendita
             venta.Fecha = new DateTime();
             Console.WriteLine("Nombre de Cliente");
             venta.Cliente = Console.ReadLine();
-      //      List<Producto> productos = new List<Producto>();
+           
+            
+            // Lista de productos en la venta
+            List<Producto> productos = new List<Producto>();
             Console.WriteLine("Agregar productos a la venta");
+            var agregar = 0;
+            do
+            {
+            agregar = 0;
             Producto producto = new Producto();
             producto = SelecionarProducto();
+            if(producto != null)
+                {
+                    productos.Add(producto);
+                }
+                while ( agregar != 2 && agregar !=1)
+                {
+                    Console.WriteLine("¿Deseas agregar otro producto?");
+                    Console.WriteLine("1) Sí");
+                    Console.WriteLine("2) No");
+                    Console.WriteLine("Ingresa el número de la respuesta");
+
+                    try
+                    {
+                        agregar = int.Parse(Console.ReadLine());
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Ingresaste una letra");
+                    }
+                };
+                
+                
+
+            } while (agregar == 1);  ;
+          ;
+           
+            
             List<Detalle> detalles = new List<Detalle>();
-            //foreach (Producto p in productos)
-            //{
-            //}
-            var detalle = new Detalle();
-                detalle.ProductoId = producto.Id;
-                detalle.Producto = producto;
-                detalle.Subtotal = detalle.Subtotal + producto.Precio;
-                detalles.Add(detalle);  
+            foreach (Producto p in productos)
+            {
+                var detalle = new Detalle();
+                detalle.ProductoId = p.Id;
+                detalle.Producto = p;
+                detalle.Subtotal = detalle.Subtotal + p.Precio;
+
+                if(detalle != null)
+                {
+                    detalles.Add(detalle);
+                }
+            
+            }
+           
             venta.Detalles = detalles;
             venta.Total = detalles.Sum(x => x.Subtotal);
             using (TienditaContext context = new TienditaContext())
@@ -255,7 +309,18 @@ namespace Tiendita
         {
             BuscarVentas();
             Console.Write("Seleciona el código de la venta: ");
-            uint id = uint.Parse(Console.ReadLine());
+            uint id = 0;
+            try
+            {
+
+                id = uint.Parse(Console.ReadLine());
+            }
+            catch
+            {
+                Console.WriteLine("Valor inválido");
+            }
+
+           
             using (TienditaContext context = new TienditaContext())
             {
                 Venta venta= context.Ventas.Find(id);
@@ -276,17 +341,21 @@ namespace Tiendita
 
             using (TienditaContext context = new TienditaContext())
             {
-                IQueryable<Venta> ventas= context.Ventas.Where(p => p.Cliente.IndexOf(buscar, StringComparison.OrdinalIgnoreCase) >= 0);
-                foreach (Venta v in ventas)
-                {
-                    Console.WriteLine(v);
-                }
+                IQueryable<Venta> ventas= context.Ventas.Where(p => p.Cliente.IndexOf(buscar, StringComparison.OrdinalIgnoreCase) >= 0).Include(p => p.Detalles);
+                
+                 foreach (Venta v in ventas)
+                    {
+                    Console.WriteLine("------------Venta----------");
+                        Console.WriteLine(v);
+                    Console.WriteLine("          Detalles       ");
+
+                    foreach ( Detalle d in v.Detalles)
+                    {
+                        Console.WriteLine(d);
+                    }
+                    }
             }
         }
-
-
-
-
 
     }
 }

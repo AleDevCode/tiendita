@@ -15,7 +15,7 @@ namespace Tiendita.Models
 
         public override string ToString()
         {
-            return $"ID: {Id} - {Cliente} Total: {Total}MXN";
+            return $"ID: {Id} -Cliente {Cliente} Total: {Total.ToString("N4")}MXN " ;
         }
     }
 
