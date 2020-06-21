@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tiendita.Models;
+using Tiendita.Utils;
 
 namespace Tiendita
 {
@@ -18,6 +19,8 @@ namespace Tiendita
             Console.WriteLine("Menu Principal");
             Console.WriteLine("1) Menú de Productos");
             Console.WriteLine("2) Menú de Ventas");
+            Console.WriteLine("3) Iniciar sesión");
+            Console.WriteLine("4) Registrar usuario");
             Console.WriteLine("0) Salir");
 
             string opcion = Console.ReadLine();
@@ -28,6 +31,12 @@ namespace Tiendita
                     break;
                 case "2":
                     MenuVentas();
+                    break;
+                case "3":
+                    IniciarSesion();
+                    break;
+                case "4":
+                    RegistrarUsuario();
                     break;
                 case "0": return;
             }
@@ -87,12 +96,10 @@ namespace Tiendita
             using (TienditaContext context = new TienditaContext())
             {
                 IQueryable<Producto> productos = context.Productos.Where(p => p.Nombre.IndexOf(buscar, StringComparison.OrdinalIgnoreCase) >= 0);
-             
-                    foreach (Producto producto in productos)
-                    {
-                        Console.WriteLine(producto);
-                    }
-                
+                foreach (Producto producto in productos)
+                {
+                    Console.WriteLine(producto);
+                }
             }
         }
 
@@ -132,28 +139,17 @@ namespace Tiendita
         {
             BuscarProductos();
             Console.Write("Seleciona el código de producto: ");
-            uint id = 0;
-            try
-            {
-                id = uint.Parse(Console.ReadLine());
-                
-            }
-            catch
-            {
-                Console.WriteLine("Valor inválido");
-            }
+            uint id = uint.Parse(Console.ReadLine());
             using (TienditaContext context = new TienditaContext())
             {
                 Producto producto = context.Productos.Find(id);
                 if (producto == null)
                 {
-                    SelecionarProducto();
+                    SelecionarProducto();   
                 }
                 return producto;
             }
         }
-
-           
 
         public static void ActualizarProducto()
         {
@@ -190,7 +186,7 @@ namespace Tiendita
             switch (opcion)
             {
                 case "1":
-                    BuscarVentas();
+                    
                     break;
                 case "2":
                     CrearVenta();
@@ -206,10 +202,9 @@ namespace Tiendita
                     break;
 
                 default:
-                    MenuVentas();
+                    MenuPrincipal();
                     break;
             }
-
             MenuVentas();
         }
 
@@ -220,59 +215,19 @@ namespace Tiendita
             venta.Fecha = new DateTime();
             Console.WriteLine("Nombre de Cliente");
             venta.Cliente = Console.ReadLine();
-           
-            
-            // Lista de productos en la venta
-            List<Producto> productos = new List<Producto>();
+      //      List<Producto> productos = new List<Producto>();
             Console.WriteLine("Agregar productos a la venta");
-            var agregar = 0;
-            do
-            {
-            agregar = 0;
             Producto producto = new Producto();
             producto = SelecionarProducto();
-            if(producto != null)
-                {
-                    productos.Add(producto);
-                }
-                while ( agregar != 2 && agregar !=1)
-                {
-                    Console.WriteLine("¿Deseas agregar otro producto?");
-                    Console.WriteLine("1) Sí");
-                    Console.WriteLine("2) No");
-                    Console.WriteLine("Ingresa el número de la respuesta");
-
-                    try
-                    {
-                        agregar = int.Parse(Console.ReadLine());
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Ingresaste una letra");
-                    }
-                };
-                
-                
-
-            } while (agregar == 1);  ;
-          ;
-           
-            
             List<Detalle> detalles = new List<Detalle>();
-            foreach (Producto p in productos)
-            {
-                var detalle = new Detalle();
-                detalle.ProductoId = p.Id;
-                detalle.Producto = p;
-                detalle.Subtotal = detalle.Subtotal + p.Precio;
-
-                if(detalle != null)
-                {
-                    detalles.Add(detalle);
-                }
-            
-            }
-           
+            //foreach (Producto p in productos)
+            //{
+            //}
+            var detalle = new Detalle();
+                detalle.ProductoId = producto.Id;
+                detalle.Producto = producto;
+                detalle.Subtotal = detalle.Subtotal + producto.Precio;
+                detalles.Add(detalle);  
             venta.Detalles = detalles;
             venta.Total = detalles.Sum(x => x.Subtotal);
             using (TienditaContext context = new TienditaContext())
@@ -309,18 +264,7 @@ namespace Tiendita
         {
             BuscarVentas();
             Console.Write("Seleciona el código de la venta: ");
-            uint id = 0;
-            try
-            {
-
-                id = uint.Parse(Console.ReadLine());
-            }
-            catch
-            {
-                Console.WriteLine("Valor inválido");
-            }
-
-           
+            uint id = uint.Parse(Console.ReadLine());
             using (TienditaContext context = new TienditaContext())
             {
                 Venta venta= context.Ventas.Find(id);
@@ -341,19 +285,105 @@ namespace Tiendita
 
             using (TienditaContext context = new TienditaContext())
             {
-                IQueryable<Venta> ventas= context.Ventas.Where(p => p.Cliente.IndexOf(buscar, StringComparison.OrdinalIgnoreCase) >= 0).Include(p => p.Detalles);
-                
-                 foreach (Venta v in ventas)
-                    {
-                    Console.WriteLine("------------Venta----------");
-                        Console.WriteLine(v);
-                    Console.WriteLine("          Detalles       ");
+                IQueryable<Venta> ventas= context.Ventas.Where(p => p.Cliente.IndexOf(buscar, StringComparison.OrdinalIgnoreCase) >= 0);
+                foreach (Venta v in ventas)
+                {
+                    Console.WriteLine(v);
+                }
+            }
+        }
 
-                    foreach ( Detalle d in v.Detalles)
-                    {
-                        Console.WriteLine(d);
-                    }
-                    }
+
+        // Control de usuarios
+        public static void RegistrarUsuario()
+        {
+            Console.WriteLine("Para registrarse ingrese un usuario y una contraseña.");
+            Usuario usuario = new Usuario();
+            string passFromConsole;
+            // Lectura y validación del nombre de usuario
+            do
+            {
+                // Leemos el usuario
+                Console.WriteLine("Usuario: ");
+                usuario.NombreUsuario = Console.ReadLine();
+                if (string.IsNullOrEmpty(usuario.NombreUsuario))
+                {
+                    Console.WriteLine("No se permiten entradas en blanco.");
+                }
+            } while (string.IsNullOrEmpty(usuario.NombreUsuario));
+            // Leemos la contraseña
+
+            do
+            {
+                Console.WriteLine("Contraseña: ");
+                passFromConsole = Console.ReadLine();
+                if (string.IsNullOrEmpty(passFromConsole))
+                {
+                    Console.WriteLine("No se permiten entradas en blanco.");
+                }
+                else
+                {
+                    Console.WriteLine("estoy en el else " + passFromConsole + Encrypt.GetSHA256(passFromConsole));
+                    usuario.Password = Encrypt.GetSHA256(passFromConsole);
+                }
+            } while (string.IsNullOrEmpty(passFromConsole));
+
+            using (TienditaContext context = new TienditaContext())
+            {
+                context.Add(usuario);
+                context.SaveChanges();
+                Console.WriteLine($"Usuario {usuario.NombreUsuario} creado");
+            }
+        }
+
+        public static void IniciarSesion()
+        {
+            Console.WriteLine("Para iniciar sesion ingrese su usuario y contraseña.");
+            Usuario usuario = new Usuario();
+            string passFromConsole;
+            // Lectura y validación del nombre de usuario
+            do
+            {
+                Console.WriteLine("Usuario: ");
+                usuario.NombreUsuario = Console.ReadLine();
+                if (string.IsNullOrEmpty(usuario.NombreUsuario))
+                {
+                    Console.WriteLine("No se permiten entradas en blanco.");
+                }
+            } while (string.IsNullOrEmpty(usuario.NombreUsuario));
+
+            // Lectura y validación de la contraseña
+            do
+            {
+                Console.WriteLine("Contraseña: ");
+                passFromConsole = Console.ReadLine();
+                if (string.IsNullOrEmpty(passFromConsole))
+                {
+                    Console.WriteLine("No se permiten entradas en blanco.");
+                }
+                else if(!string.IsNullOrEmpty(passFromConsole))
+                {
+                    Console.WriteLine("estoy en el else if " + passFromConsole + Encrypt.GetSHA256(passFromConsole));
+                    usuario.Password = Encrypt.GetSHA256(passFromConsole);
+                }
+            } while (string.IsNullOrEmpty(passFromConsole));
+
+            using (TienditaContext context = new TienditaContext())
+            {
+
+                var usuarioDb = context.Usuario.Where(
+                    u => u.NombreUsuario == usuario.NombreUsuario &&
+                    u.Password == usuario.Password).FirstOrDefault();
+
+                if (usuarioDb != null)
+                {
+                    Console.WriteLine("¡Inicio de sesión exitoso!");
+                    Console.WriteLine($"Bienvenido {usuarioDb.NombreUsuario}");
+                }
+                else
+                {
+                    Console.WriteLine("Usuario o contraseña incorrectos");
+                }
             }
         }
 
