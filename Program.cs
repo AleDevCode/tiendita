@@ -223,6 +223,11 @@ namespace Tiendita
             venta.Total = detalles.Sum(x => x.Subtotal);
             using (TienditaContext context = new TienditaContext())
             {
+
+                foreach (Detalle d in venta.Detalles) {
+                    context.Detalles.Attach(d);
+                }
+                
                 context.Add(venta);
                 context.SaveChanges();
                 Console.WriteLine("Venta creada");
