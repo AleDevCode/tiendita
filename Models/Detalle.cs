@@ -10,6 +10,7 @@ namespace Tiendita.Models
         public uint Id { get; set; }
         public uint ProductoId { get; set; }
         public Producto Producto { get; set; }
+        public uint Cantidad { get; set; }
         public uint VentaId { get; set; }
         public Venta Venta { get; set; }
         public decimal Subtotal { get; set; }
@@ -17,7 +18,7 @@ namespace Tiendita.Models
 
         public override string ToString()
         {
-            return $"ID: {Id} - ProductoId: {ProductoId} Subtotal: {Subtotal.ToString("N4")}MXN   ";
+            return $"ID: {Id} - ProductoId: {ProductoId} -Cantidad {Cantidad} - Subtotal: {Subtotal.ToString("N4")}MXN   ";
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Tiendita.Models
         public string Tamano { get; set; }
         public decimal Costo { get; set; }
         public decimal Precio { get; set; }
-        public decimal Cantidad { get; set; }
+        public uint Stock { get; set; }
 
         public override string ToString()
         {

@@ -14,7 +14,7 @@ namespace Tiendita.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseMySql("server=localhost;database=tiendita;user=root;password=3006");
+            optionsBuilder.UseMySql("server=localhost;database=tiendita;user=root;password=");
         }
     }
 }
